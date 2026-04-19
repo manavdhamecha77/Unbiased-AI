@@ -21,6 +21,8 @@ NUMERICAL_COLS = [
     "age", "education_num", "capital_gain", "capital_loss", "hours_per_week",
 ]
 
+FEATURE_COLS = NUMERICAL_COLS + CATEGORICAL_COLS
+
 LABEL_MAP = {0: "<=50K (Low Income)", 1: ">50K (High Income)"}
 
 
@@ -65,7 +67,8 @@ def _preprocess(req: PredictionRequest, encoder, scaler) -> np.ndarray:
     # Scale numericals
     df[NUMERICAL_COLS] = scaler.transform(df[NUMERICAL_COLS])
 
-    return df.values
+    # Reorder columns to match training
+    return df[FEATURE_COLS].values
 
 
 def get_prediction(req: PredictionRequest) -> PredictionResponse:

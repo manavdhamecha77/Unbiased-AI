@@ -1,13 +1,25 @@
 """
-Gemini Service — generates Audit Receipts using Gemini 1.5 Pro.
+Gemini Service — generates Audit Receipts using Gemini 2.5 Flash.
 """
 
 from google import genai
 from app.config import GEMINI_API_KEY
 from app.schemas import AuditRequest, AuditResponse
 
-# Initialize Gemini client
-client = genai.Client(api_key=GEMINI_API_KEY)
+# Lazy-initialized Gemini client (avoids crash when API key is missing)
+_client = None
+
+
+def _get_client():
+    global _client
+    if _client is None:
+        if not GEMINI_API_KEY:
+            raise ValueError(
+                "GEMINI_API_KEY is not set. Copy backend/.env.example to backend/.env "
+                "and add your key."
+            )
+        _client = genai.Client(api_key=GEMINI_API_KEY)
+    return _client
 
 AUDIT_PROMPT_TEMPLATE = """
 You are an AI Governance Auditor for "Sentinel", an enterprise fairness platform.
@@ -41,7 +53,7 @@ Format the output in clean Markdown.
 
 
 async def generate_audit_receipt(req: AuditRequest) -> AuditResponse:
-    """Call Gemini 1.5 Pro to generate a human-readable audit receipt."""
+    """Call Gemini 2.5 Flash to generate a human-readable audit receipt."""
     features_formatted = "\n".join(
         f"- **{k}**: {v}" for k, v in req.applicant_features.items()
     )
@@ -57,8 +69,8 @@ async def generate_audit_receipt(req: AuditRequest) -> AuditResponse:
         features_formatted=features_formatted,
     )
 
-    response = client.models.generate_content(
-        model="gemini-1.5-pro",
+    response = _get_client().models.generate_content(
+        model="gemini-2.5-flash",
         contents=prompt,
     )
 

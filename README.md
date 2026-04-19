@@ -31,7 +31,7 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 │  • Audit Drawer     │         │                                 │
 │  • Mitigation Toggle│         │  Models: Logistic Regression    │
 └─────────────────────┘         │  Fairness: AIF360 Reweighing   │
-                                │  Audit: Gemini 1.5 Pro          │
+                                │  Audit: Gemini 2.5 Flash          │
                                 └─────────────────────────────────┘
 ```
 
@@ -126,7 +126,7 @@ The result: **DIR improves to ~0.95** while maintaining comparable accuracy.
 | ML Models        | Scikit-Learn (Logistic Regression)       |
 | Bias Mitigation  | AIF360 (Reweighing)                      |
 | Fairness Metrics | Fairlearn                                |
-| Explainability   | Gemini 1.5 Pro                           |
+| Explainability   | Gemini 2.5 Flash                           |
 | Causal Analysis  | DoWhy · Matplotlib                      |
 | Serialization    | Joblib                                   |
 

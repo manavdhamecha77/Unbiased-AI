@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/audit", response_model=AuditResponse)
 async def audit(req: AuditRequest):
     """
-    Send prediction context to Gemini 1.5 Pro and receive
+    Send prediction context to Gemini 2.5 Flash and receive
     a human-readable audit receipt explaining the model's decision.
     """
     try:

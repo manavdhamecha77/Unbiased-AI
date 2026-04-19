@@ -34,9 +34,9 @@ from sklearn.metrics import accuracy_score, classification_report
 from aif360.datasets import BinaryLabelDataset
 from aif360.algorithms.preprocessing import Reweighing
 
-# ---------------------------------------------------------------------------
+
 # Config
-# ---------------------------------------------------------------------------
+
 MODEL_DIR = Path("models")
 DATA_DIR = Path("data")
 MODEL_DIR.mkdir(exist_ok=True)
@@ -53,9 +53,9 @@ NUMERICAL_COLS = [
 
 TARGET = "income"
 
-# ---------------------------------------------------------------------------
+
 # 1. Load and clean data
-# ---------------------------------------------------------------------------
+
 print("=" * 60)
 print("SENTINEL — Model Training Pipeline")
 print("=" * 60)
@@ -89,9 +89,15 @@ df[TARGET] = (df[TARGET].str.strip().str.startswith(">50K")).astype(int)
 print(f"      Dataset shape: {df.shape}")
 print(f"      Target distribution:\n{df[TARGET].value_counts().to_string()}")
 
-# ---------------------------------------------------------------------------
-# 2. Encode features
-# ---------------------------------------------------------------------------
+
+# 2. Save raw sensitive features BEFORE encoding
+
+df.reset_index(drop=True, inplace=True)
+sensitive_raw = df[["race", "sex"]].copy()
+
+
+# 3. Encode features
+
 print("\n[2/6] Encoding features...")
 
 label_encoders = {}
@@ -108,30 +114,22 @@ y = df[TARGET].values
 
 X[NUMERICAL_COLS] = scaler.fit_transform(X[NUMERICAL_COLS])
 
-# Save sensitive features BEFORE encoding for fairness computation
-sensitive_df_raw = pd.read_csv(data_file).dropna()
-sensitive_df_raw.drop("fnlwgt", axis=1, inplace=True, errors="ignore")
 
-# ---------------------------------------------------------------------------
-# 3. Train/Test split
-# ---------------------------------------------------------------------------
+# 4. Train/Test split
+
 print("\n[3/6] Splitting data...")
 
-X_train, X_test, y_train, y_test = train_test_split(
-    X.values, y, test_size=0.2, random_state=42, stratify=y
+X_train, X_test, y_train, y_test, sens_train, sens_test = train_test_split(
+    X.values, y, sensitive_raw, test_size=0.2, random_state=42, stratify=y
 )
 
-# Also split sensitive features for fairness evaluation
-sensitive_train = sensitive_df_raw[["race", "sex"]].iloc[X.index].values
-sens_train, sens_test = train_test_split(
-    sensitive_df_raw[["race", "sex"]], test_size=0.2, random_state=42, stratify=y
-)
+sens_test = sens_test.reset_index(drop=True)
 
 print(f"      Train: {X_train.shape[0]} | Test: {X_test.shape[0]}")
 
-# ---------------------------------------------------------------------------
+
 # 4. Train Model_Biased (raw data, no mitigation)
-# ---------------------------------------------------------------------------
+
 print("\n[4/6] Training Model_Biased...")
 
 model_biased = LogisticRegression(max_iter=1000, random_state=42, solver="lbfgs")
@@ -142,9 +140,9 @@ acc_biased = accuracy_score(y_test, y_pred_biased)
 print(f"      Accuracy: {acc_biased:.4f}")
 print(classification_report(y_test, y_pred_biased, target_names=["<=50K", ">50K"]))
 
-# ---------------------------------------------------------------------------
+
 # 5. Train Model_Fair (AIF360 Reweighing)
-# ---------------------------------------------------------------------------
+
 print("\n[5/6] Training Model_Fair with Reweighing...")
 
 # Reconstruct a DataFrame for AIF360
@@ -185,9 +183,9 @@ acc_fair = accuracy_score(y_test, y_pred_fair)
 print(f"      Accuracy: {acc_fair:.4f}")
 print(classification_report(y_test, y_pred_fair, target_names=["<=50K", ">50K"]))
 
-# ---------------------------------------------------------------------------
+
 # 6. Save artifacts
-# ---------------------------------------------------------------------------
+
 print("\n[6/6] Saving models and artifacts...")
 
 joblib.dump(model_biased, MODEL_DIR / "model_biased.joblib")
@@ -199,9 +197,9 @@ joblib.dump(X_test, DATA_DIR / "X_test.joblib")
 joblib.dump(y_test, DATA_DIR / "y_test.joblib")
 joblib.dump(sens_test.reset_index(drop=True), DATA_DIR / "sensitive_test.joblib")
 
-# ---------------------------------------------------------------------------
+
 # Quick fairness summary
-# ---------------------------------------------------------------------------
+
 print("\n" + "=" * 60)
 print("FAIRNESS SUMMARY")
 print("=" * 60)

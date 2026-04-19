@@ -18,9 +18,9 @@ app = FastAPI(
     version="0.1.0",
 )
 
-# ---------------------------------------------------------------------------
+
 # CORS — allow the Next.js frontend
-# ---------------------------------------------------------------------------
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -29,14 +29,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# ---------------------------------------------------------------------------
+
 # Static files (causal DAG images, etc.)
-# ---------------------------------------------------------------------------
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# ---------------------------------------------------------------------------
+
 # Routers
-# ---------------------------------------------------------------------------
+
 app.include_router(predict.router, prefix="/api", tags=["Prediction"])
 app.include_router(fairness.router, prefix="/api", tags=["Fairness"])
 app.include_router(audit.router, prefix="/api", tags=["Audit"])

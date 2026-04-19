@@ -3,7 +3,7 @@
 > **Project Codename:** Sentinel
 > **Tagline:** Trustworthy, Explainable, and Compliant AI Governance for Enterprise.
 > **Dataset:** Adult Census Income (UCI ML Repository)
-> **Stack:** Next.js (Frontend) + FastAPI (Backend) + Scikit-Learn + AIF360 + Fairlearn + Gemini 1.5 Pro + DoWhy
+> **Stack:** Next.js (Frontend) + FastAPI (Backend) + Scikit-Learn + AIF360 + Fairlearn + Gemini 2.5 Flash + DoWhy
 
 ---
 
@@ -28,7 +28,7 @@ Unbiased-AI/
 │   │   └── services/
 │   │       ├── model_service.py     # Model loading & inference
 │   │       ├── fairness_service.py  # Disparate Impact & Demographic Parity
-│   │       └── gemini_service.py    # Gemini 1.5 Pro audit receipt generation
+│   │       └── gemini_service.py    # Gemini 2.5 Flash audit receipt generation
 │   ├── train.py                 # Training script (biased + fair models)
 │   ├── generate_causal_dag.py   # DoWhy causal DAG visualization
 │   ├── requirements.txt         # Python dependencies
@@ -74,7 +74,7 @@ Unbiased-AI/
 - [ ] Implement Fairness Calculator (`/api/fairness`)
   - Disparate Impact Ratio (80% rule)
   - Demographic Parity Difference
-- [ ] Integrate Gemini 1.5 Pro (`/api/audit`)
+- [ ] Integrate Gemini 2.5 Flash (`/api/audit`)
   - Audit Receipt prompt engineering
   - Risk level classification
 - [ ] Generate Causal DAG with DoWhy/matplotlib (`/api/causal/dag`)
@@ -195,7 +195,7 @@ npm run dev
 | `scikit-learn` | Logistic Regression models |
 | `aif360` | Reweighing algorithm for bias mitigation |
 | `fairlearn` | Demographic parity metric computation |
-| `google-genai` | Gemini 1.5 Pro integration |
+| `google-genai` | Gemini 2.5 Flash integration |
 | `dowhy` | Causal inference (DAG generation) |
 | `joblib` | Model serialization |
 | `pandas` / `numpy` | Data processing |

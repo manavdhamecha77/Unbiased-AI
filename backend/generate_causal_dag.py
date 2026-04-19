@@ -16,10 +16,10 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
-# ---------------------------------------------------------------------------
+
 # Build the Causal DAG manually (for demo purposes)
 # In production, you'd use DoWhy's CausalModel to infer this.
-# ---------------------------------------------------------------------------
+
 
 STATIC_DIR = Path("static")
 STATIC_DIR.mkdir(exist_ok=True)

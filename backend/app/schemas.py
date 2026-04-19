@@ -6,9 +6,9 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 
-# ---------------------------------------------------------------------------
+
 # Prediction
-# ---------------------------------------------------------------------------
+
 class PredictionRequest(BaseModel):
     """Features for an Adult Census prediction."""
     age: int = Field(..., ge=17, le=90, description="Applicant age")
@@ -34,9 +34,9 @@ class PredictionResponse(BaseModel):
     model_used: str
 
 
-# ---------------------------------------------------------------------------
+
 # Fairness
-# ---------------------------------------------------------------------------
+
 class FairnessRequest(BaseModel):
     """Compute fairness metrics over a batch of predictions."""
     sensitive_feature: str = Field("sex", description="Column name of the sensitive attribute")
@@ -50,9 +50,9 @@ class FairnessResponse(BaseModel):
     is_fair: bool = Field(..., description="True if DIR ≥ 0.8 (80% rule)")
 
 
-# ---------------------------------------------------------------------------
+
 # Audit
-# ---------------------------------------------------------------------------
+
 class AuditRequest(BaseModel):
     prediction: int
     probability: float
