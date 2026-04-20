@@ -192,9 +192,10 @@ export default function Home() {
           {/* Sex DIR gauge */}
           <div className="glass-card p-6 flex items-center justify-center">
             {fairnessLoading ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                <span className="text-xs text-muted">Computing metrics...</span>
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-32 h-32 rounded-full shimmer bg-card-border" />
+                <div className="w-20 h-3 rounded shimmer bg-card-border" />
+                <div className="w-24 h-5 rounded-full shimmer bg-card-border" />
               </div>
             ) : fairness ? (
               <FairnessGauge
@@ -214,9 +215,10 @@ export default function Home() {
           {/* Race DIR gauge */}
           <div className="glass-card p-6 flex items-center justify-center">
             {fairnessLoading ? (
-              <div className="flex flex-col items-center gap-2">
-                <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
-                <span className="text-xs text-muted">Computing metrics...</span>
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-32 h-32 rounded-full shimmer bg-card-border" />
+                <div className="w-20 h-3 rounded shimmer bg-card-border" />
+                <div className="w-24 h-5 rounded-full shimmer bg-card-border" />
               </div>
             ) : fairnessRace ? (
               <FairnessGauge
@@ -234,7 +236,13 @@ export default function Home() {
           </div>
 
           <div className="glass-card p-6 flex items-center justify-center">
-            {fairness ? (
+            {fairnessLoading ? (
+              <div className="w-full space-y-3">
+                <div className="w-32 h-3 rounded shimmer bg-card-border mx-auto" />
+                <div className="w-24 h-10 rounded shimmer bg-card-border mx-auto" />
+                <div className="w-full h-2 rounded-full shimmer bg-card-border" />
+              </div>
+            ) : fairness ? (
               <div className="text-center space-y-3 animate-fade-in">
                 <p className="text-xs text-muted uppercase tracking-wider font-medium">
                   Demographic Parity Diff
