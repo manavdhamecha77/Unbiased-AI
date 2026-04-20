@@ -9,6 +9,7 @@ import FairnessGauge from "./components/FairnessGauge";
 import AuditDrawer from "./components/AuditDrawer";
 import Toast from "./components/Toast";
 import DagModal from "./components/DagModal";
+import PredictionHistory, { type HistoryEntry } from "./components/PredictionHistory";
 
 const API_BASE = "http://localhost:8000";
 
@@ -48,6 +49,7 @@ export default function Home() {
   const [dagModalOpen, setDagModalOpen] = useState(false);
   const [lastFeatures, setLastFeatures] = useState<Record<string, unknown>>({});
   const [toast, setToast] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryEntry[]>([]);
 
   const showError = (msg: string) => setToast(msg);
 
@@ -102,6 +104,16 @@ export default function Home() {
       const data = await res.json();
       if (data.detail) { showError(`Prediction failed: ${data.detail}`); return; }
       setPrediction(data);
+      setHistory(prev => [...prev, {
+        id: prev.length + 1,
+        model: data.model_used,
+        outcome: data.prediction_label,
+        confidence: data.probability,
+        sex: String(formData.sex ?? ""),
+        race: String(formData.race ?? ""),
+        age: Number(formData.age ?? 0),
+        occupation: String(formData.occupation ?? ""),
+      }]);
 
       // Also fetch fairness
       if (!fairness) {
@@ -294,6 +306,9 @@ export default function Home() {
             </button>
           </div>
         </section>
+
+        {/* Prediction History */}
+        <PredictionHistory entries={history} />
       </main>
 
       {/* Footer */}
