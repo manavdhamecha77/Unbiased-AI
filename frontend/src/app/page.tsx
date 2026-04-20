@@ -8,6 +8,7 @@ import MitigationToggle from "./components/MitigationToggle";
 import FairnessGauge from "./components/FairnessGauge";
 import AuditDrawer from "./components/AuditDrawer";
 import Toast from "./components/Toast";
+import DagModal from "./components/DagModal";
 
 const API_BASE = "http://localhost:8000";
 
@@ -39,8 +40,12 @@ export default function Home() {
 
   const [prediction, setPrediction] = useState<PredictionData | null>(null);
   const [fairness, setFairness] = useState<FairnessData | null>(null);
+  const [fairnessRace, setFairnessRace] = useState<FairnessData | null>(null);
+  const [prevFairness, setPrevFairness] = useState<FairnessData | null>(null);
+  const [prevFairnessRace, setPrevFairnessRace] = useState<FairnessData | null>(null);
   const [audit, setAudit] = useState<AuditData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [dagModalOpen, setDagModalOpen] = useState(false);
   const [lastFeatures, setLastFeatures] = useState<Record<string, unknown>>({});
   const [toast, setToast] = useState<string | null>(null);
 
@@ -48,26 +53,36 @@ export default function Home() {
 
   const modelType = useFairModel ? "fair" : "biased";
 
-  // Fetch biased model fairness on mount so the dashboard isn't blank
-  useEffect(() => { fetchFairness("biased"); }, [fetchFairness]);
-
   // Fetch fairness metrics whenever model changes
   const fetchFairness = useCallback(async (model: string) => {
     setFairnessLoading(true);
     try {
-      const res = await fetch(`${API_BASE}/api/fairness`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sensitive_feature: "sex", model_type: model }),
-      });
-      const data = await res.json();
-      setFairness(data);
+      const [sexRes, raceRes] = await Promise.all([
+        fetch(`${API_BASE}/api/fairness`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sensitive_feature: "sex", model_type: model }),
+        }),
+        fetch(`${API_BASE}/api/fairness`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sensitive_feature: "race", model_type: model }),
+        }),
+      ]);
+      const [sexData, raceData] = await Promise.all([sexRes.json(), raceRes.json()]);
+      setPrevFairness(fairness);
+      setPrevFairnessRace(fairnessRace);
+      setFairness(sexData);
+      setFairnessRace(raceData);
     } catch {
       showError("Backend unavailable — run: uvicorn app.main:app --reload --port 8000");
     } finally {
       setFairnessLoading(false);
     }
   }, []);
+
+  // Fetch biased model fairness on mount so the dashboard isn't blank
+  useEffect(() => { fetchFairness("biased"); }, [fetchFairness]);
 
   const handleToggle = async () => {
     const newModel = !useFairModel;
@@ -143,13 +158,14 @@ export default function Home() {
         </section>
 
         {/* Toggle + Gauges row */}
-        <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
           <MitigationToggle
             isActive={useFairModel}
             onToggle={handleToggle}
             loading={fairnessLoading}
           />
 
+          {/* Sex DIR gauge */}
           <div className="glass-card p-6 flex items-center justify-center">
             {fairnessLoading ? (
               <div className="flex flex-col items-center gap-2">
@@ -159,13 +175,36 @@ export default function Home() {
             ) : fairness ? (
               <FairnessGauge
                 value={fairness.disparate_impact_ratio ?? 0}
-                label="Disparate Impact Ratio"
+                label="DIR — Sex"
                 isFair={fairness.is_fair}
+                prevValue={prevFairness?.disparate_impact_ratio}
+              />
+            ) : (
+              <div className="text-center text-muted text-sm">
+                <p className="text-2xl mb-2">♀♂</p>
+                <p>Sex fairness will<br />appear here</p>
+              </div>
+            )}
+          </div>
+
+          {/* Race DIR gauge */}
+          <div className="glass-card p-6 flex items-center justify-center">
+            {fairnessLoading ? (
+              <div className="flex flex-col items-center gap-2">
+                <div className="w-8 h-8 border-2 border-accent/30 border-t-accent rounded-full animate-spin" />
+                <span className="text-xs text-muted">Computing metrics...</span>
+              </div>
+            ) : fairnessRace ? (
+              <FairnessGauge
+                value={fairnessRace.disparate_impact_ratio ?? 0}
+                label="DIR — Race"
+                isFair={fairnessRace.is_fair}
+                prevValue={prevFairnessRace?.disparate_impact_ratio}
               />
             ) : (
               <div className="text-center text-muted text-sm">
                 <p className="text-2xl mb-2">📊</p>
-                <p>Toggle model or run a prediction<br />to see fairness metrics</p>
+                <p>Race fairness will<br />appear here</p>
               </div>
             )}
           </div>
@@ -232,28 +271,27 @@ export default function Home() {
               </div>
             )}
 
-            {/* Causal DAG preview */}
-            <div className="glass-card p-6 space-y-3">
+            {/* Causal DAG — click to expand */}
+            <button
+              onClick={() => setDagModalOpen(true)}
+              className="glass-card p-4 space-y-2 w-full text-left group hover:border-accent/50 transition-colors cursor-pointer"
+            >
               <h3 className="text-sm font-semibold text-muted uppercase tracking-wider flex items-center gap-2">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
                   <circle cx="12" cy="12" r="3" />
                   <path d="M12 1v6m0 6v6M4.22 4.22l4.24 4.24m7.08 7.08l4.24 4.24M1 12h6m6 0h6M4.22 19.78l4.24-4.24m7.08-7.08l4.24-4.24" />
                 </svg>
                 Causal DAG
+                <span className="ml-auto text-[10px] text-accent opacity-0 group-hover:opacity-100 transition-opacity">click to expand ↗</span>
               </h3>
-              <p className="text-xs text-muted">
-                Shows how sensitive attributes (race, sex) causally influence income predictions.
-              </p>
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={`${API_BASE}/static/causal_dag.png`}
-                alt="Causal DAG showing sensitive attribute pathways"
-                className="w-full rounded-lg border border-card-border"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = "none";
-                }}
+                alt="Causal DAG"
+                className="w-full rounded-lg border border-card-border opacity-80 group-hover:opacity-100 transition-opacity"
+                onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />
-            </div>
+            </button>
           </div>
         </section>
       </main>
@@ -278,6 +316,13 @@ export default function Home() {
 
       {/* Toast */}
       {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+
+      {/* DAG Modal */}
+      <DagModal
+        isOpen={dagModalOpen}
+        onClose={() => setDagModalOpen(false)}
+        imageUrl={`${API_BASE}/static/causal_dag.png`}
+      />
     </div>
   );
 }

@@ -33,8 +33,8 @@ def compute_fairness_metrics(req: FairnessRequest) -> FairnessResponse:
     # Predictions
     y_pred = model.predict(X_test)
 
-    # Select the sensitive feature column
-    sensitive_col = sensitive_test[req.sensitive_feature].values
+    # Select the sensitive feature column — stored as dict of numpy arrays
+    sensitive_col = sensitive_test[req.sensitive_feature]
 
     # ----- Disparate Impact Ratio -----
     groups = np.unique(sensitive_col)

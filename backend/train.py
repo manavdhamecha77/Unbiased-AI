@@ -195,7 +195,9 @@ joblib.dump(scaler, MODEL_DIR / "scaler.joblib")
 
 joblib.dump(X_test, DATA_DIR / "X_test.joblib")
 joblib.dump(y_test, DATA_DIR / "y_test.joblib")
-joblib.dump(sens_test.reset_index(drop=True), DATA_DIR / "sensitive_test.joblib")
+# Save as plain dict of numpy arrays to avoid pandas StringDtype version issues
+sens_df = sens_test.reset_index(drop=True)
+joblib.dump({"sex": sens_df["sex"].to_numpy(), "race": sens_df["race"].to_numpy()}, DATA_DIR / "sensitive_test.joblib")
 
 
 # Quick fairness summary
@@ -205,7 +207,7 @@ print("FAIRNESS SUMMARY")
 print("=" * 60)
 
 for name, preds in [("Biased", y_pred_biased), ("Fair", y_pred_fair)]:
-    sex_vals = sens_test["sex"].values
+    sex_vals = sens_df["sex"].to_numpy()
     male_rate = preds[sex_vals == "Male"].mean()
     female_rate = preds[sex_vals == "Female"].mean()
     dir_val = female_rate / male_rate if male_rate > 0 else 0
