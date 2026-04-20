@@ -10,6 +10,7 @@ import AuditDrawer from "./components/AuditDrawer";
 import Toast from "./components/Toast";
 import DagModal from "./components/DagModal";
 import PredictionHistory, { type HistoryEntry } from "./components/PredictionHistory";
+import ExplainPanel from "./components/ExplainPanel";
 
 const API_BASE = "http://localhost:8000";
 
@@ -51,6 +52,10 @@ export default function Home() {
   const [toast, setToast] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
 
+  interface ExplainData { model_type: string; features: string[]; weights: number[]; }
+  const [explainBiased, setExplainBiased] = useState<ExplainData | null>(null);
+  const [explainFair, setExplainFair] = useState<ExplainData | null>(null);
+
   const showError = (msg: string) => setToast(msg);
 
   const modelType = useFairModel ? "fair" : "biased";
@@ -84,7 +89,14 @@ export default function Home() {
   }, []);
 
   // Fetch biased model fairness on mount so the dashboard isn't blank
-  useEffect(() => { fetchFairness("biased"); }, [fetchFairness]);
+  useEffect(() => {
+    fetchFairness("biased");
+    // Fetch explain for both models on mount
+    Promise.all([
+      fetch(`${API_BASE}/api/explain?model_type=biased`).then(r => r.json()),
+      fetch(`${API_BASE}/api/explain?model_type=fair`).then(r => r.json()),
+    ]).then(([b, f]) => { setExplainBiased(b); setExplainFair(f); }).catch(() => {});
+  }, [fetchFairness]);
 
   const handleToggle = async () => {
     const newModel = !useFairModel;
@@ -282,6 +294,11 @@ export default function Home() {
                 <p>Fill in the applicant data and click &quot;Run Prediction&quot;</p>
               </div>
             )}
+
+            <ExplainPanel
+              biased={explainBiased}
+              fair={useFairModel ? explainFair : null}
+            />
 
             {/* Causal DAG — click to expand */}
             <button
