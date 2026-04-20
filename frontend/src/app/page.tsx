@@ -168,7 +168,7 @@ export default function Home() {
                   Demographic Parity Diff
                 </p>
                 <p className="text-4xl font-bold text-foreground">
-                  {fairness.demographic_parity_difference.toFixed(4)}
+                  {(fairness.demographic_parity_difference ?? 0).toFixed(4)}
                 </p>
                 <p className="text-xs text-muted">
                   Lower is better · Measures prediction rate gap between groups
@@ -180,8 +180,8 @@ export default function Home() {
                   <div
                     className="h-full rounded-full transition-all duration-1000"
                     style={{
-                      width: `${Math.min(fairness.demographic_parity_difference * 100 * 2, 100)}%`,
-                      background: fairness.demographic_parity_difference < 0.1
+                      width: `${Math.min((fairness.demographic_parity_difference ?? 0) * 100 * 2, 100)}%`,
+                      background: (fairness.demographic_parity_difference ?? 0) < 0.1
                         ? "var(--success)"
                         : fairness.demographic_parity_difference < 0.3
                         ? "var(--warning)"
