@@ -44,6 +44,7 @@ class FairnessRequest(BaseModel):
 
 
 class FairnessResponse(BaseModel):
+    model_config = {"json_encoders": {float: lambda v: round(v, 4) if isinstance(v, float) and not (v != v) else 0.0}}
     disparate_impact_ratio: float
     demographic_parity_difference: float
     model_type: str

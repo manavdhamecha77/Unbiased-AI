@@ -76,6 +76,8 @@ async def generate_audit_receipt(req: AuditRequest) -> AuditResponse:
 
     audit_text = response.text
 
+    print(audit_text)
+
     # Determine risk level from the audit text (simple heuristic)
     risk_level = "MEDIUM"
     if req.model_used == "fair":

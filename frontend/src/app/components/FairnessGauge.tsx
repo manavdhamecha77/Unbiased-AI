@@ -9,7 +9,8 @@ interface FairnessGaugeProps {
 export default function FairnessGauge({ value, label, isFair }: FairnessGaugeProps) {
   const radius = 45;
   const circumference = 2 * Math.PI * radius;
-  const clampedValue = Math.min(Math.max(value, 0), 1);
+  const safeValue = isNaN(value) || value == null ? 0 : value;
+  const clampedValue = Math.min(Math.max(safeValue, 0), 1);
   const offset = circumference - clampedValue * circumference;
 
   const color = isFair ? "var(--success)" : "var(--danger)";

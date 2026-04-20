@@ -46,10 +46,14 @@ def compute_fairness_metrics(req: FairnessRequest) -> FairnessResponse:
         selection_rates[g] = y_pred[mask].mean()
 
     rates = list(selection_rates.values())
-    if max(rates) == 0:
+    if not rates or max(rates) == 0:
         dir_value = 1.0
     else:
         dir_value = min(rates) / max(rates)
+
+    # Guard against NaN/inf from edge cases
+    if not np.isfinite(dir_value):
+        dir_value = 0.0
 
     # ----- Demographic Parity Difference -----
     dpd = demographic_parity_difference(
@@ -58,9 +62,13 @@ def compute_fairness_metrics(req: FairnessRequest) -> FairnessResponse:
         sensitive_features=sensitive_col,
     )
 
+    dpd_value = float(abs(dpd))
+    if not np.isfinite(dpd_value):
+        dpd_value = 0.0
+
     return FairnessResponse(
         disparate_impact_ratio=round(dir_value, 4),
-        demographic_parity_difference=round(abs(dpd), 4),
+        demographic_parity_difference=round(dpd_value, 4),
         model_type=model_type,
         is_fair=dir_value >= 0.8,
     )

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Header from "./components/Header";
 import PredictionForm from "./components/PredictionForm";
 import PredictionResult from "./components/PredictionResult";
 import MitigationToggle from "./components/MitigationToggle";
 import FairnessGauge from "./components/FairnessGauge";
 import AuditDrawer from "./components/AuditDrawer";
+import Toast from "./components/Toast";
 
 const API_BASE = "http://localhost:8000";
 
@@ -41,8 +42,14 @@ export default function Home() {
   const [audit, setAudit] = useState<AuditData | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [lastFeatures, setLastFeatures] = useState<Record<string, unknown>>({});
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showError = (msg: string) => setToast(msg);
 
   const modelType = useFairModel ? "fair" : "biased";
+
+  // Fetch biased model fairness on mount so the dashboard isn't blank
+  useEffect(() => { fetchFairness("biased"); }, [fetchFairness]);
 
   // Fetch fairness metrics whenever model changes
   const fetchFairness = useCallback(async (model: string) => {
@@ -55,8 +62,8 @@ export default function Home() {
       });
       const data = await res.json();
       setFairness(data);
-    } catch (err) {
-      console.error("Fairness error:", err);
+    } catch {
+      showError("Backend unavailable — run: uvicorn app.main:app --reload --port 8000");
     } finally {
       setFairnessLoading(false);
     }
@@ -78,14 +85,15 @@ export default function Home() {
         body: JSON.stringify({ ...formData, model_type: modelType }),
       });
       const data = await res.json();
+      if (data.detail) { showError(`Prediction failed: ${data.detail}`); return; }
       setPrediction(data);
 
       // Also fetch fairness
       if (!fairness) {
         fetchFairness(modelType);
       }
-    } catch (err) {
-      console.error("Prediction error:", err);
+    } catch {
+      showError("Backend unavailable — run: uvicorn app.main:app --reload --port 8000");
     } finally {
       setPredictionLoading(false);
     }
@@ -107,10 +115,11 @@ export default function Home() {
         }),
       });
       const data = await res.json();
+      if (data.detail) { showError(`Audit failed: ${data.detail}`); return; }
       setAudit(data);
       setDrawerOpen(true);
-    } catch (err) {
-      console.error("Audit error:", err);
+    } catch {
+      showError("Audit unavailable — check your GEMINI_API_KEY in backend/.env");
     } finally {
       setAuditLoading(false);
     }
@@ -149,7 +158,7 @@ export default function Home() {
               </div>
             ) : fairness ? (
               <FairnessGauge
-                value={fairness.disparate_impact_ratio}
+                value={fairness.disparate_impact_ratio ?? 0}
                 label="Disparate Impact Ratio"
                 isFair={fairness.is_fair}
               />
@@ -266,6 +275,9 @@ export default function Home() {
           modelUsed={audit.model_used}
         />
       )}
+
+      {/* Toast */}
+      {toast && <Toast message={toast} onClose={() => setToast(null)} />}
     </div>
   );
 }
