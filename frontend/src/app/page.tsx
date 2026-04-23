@@ -11,6 +11,7 @@ import Toast from "./components/Toast";
 import DagModal from "./components/DagModal";
 import PredictionHistory, { type HistoryEntry } from "./components/PredictionHistory";
 import ExplainPanel from "./components/ExplainPanel";
+import RegulatoryToggle from "./components/RegulatoryToggle";
 
 const API_BASE = "http://localhost:8000";
 
@@ -40,6 +41,7 @@ export default function Home() {
   const [fairnessLoading, setFairnessLoading] = useState(false);
   const [auditLoading, setAuditLoading] = useState(false);
 
+  const [regulatoryFramework, setRegulatoryFramework] = useState("EU AI Act");
   const [prediction, setPrediction] = useState<PredictionData | null>(null);
   const [fairness, setFairness] = useState<FairnessData | null>(null);
   const [fairnessRace, setFairnessRace] = useState<FairnessData | null>(null);
@@ -151,6 +153,7 @@ export default function Home() {
           model_used: prediction.model_used,
           applicant_features: lastFeatures,
           fairness_score: fairness?.disparate_impact_ratio ?? null,
+          regulatory_framework: regulatoryFramework,
         }),
       });
       const data = await res.json();
@@ -179,6 +182,13 @@ export default function Home() {
             Detect bias in ML predictions, apply real-time mitigation with AIF360 Reweighing,
             and generate Gemini-powered audit trails — all in one dashboard.
           </p>
+        </section>
+
+        {/* Regulatory Engine */}
+        <section className="flex justify-center">
+          <div className="w-full max-w-3xl">
+            <RegulatoryToggle value={regulatoryFramework} onChange={setRegulatoryFramework} />
+          </div>
         </section>
 
         {/* Toggle + Gauges row */}

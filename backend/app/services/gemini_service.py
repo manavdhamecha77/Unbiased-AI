@@ -25,7 +25,7 @@ AUDIT_PROMPT_TEMPLATE = """
 You are an AI Governance Auditor for "Sentinel", an enterprise fairness platform.
 
 A machine learning model has made the following prediction. Analyze it for potential bias
-and generate a formal **Audit Receipt**.
+and generate a formal **Audit Receipt** according to the **{regulatory_framework}** regulations.
 
 ## Prediction Context
 - **Model Used**: {model_used}
@@ -43,9 +43,9 @@ Generate an audit receipt with the following sections:
    influenced the decision. Rate risk as LOW / MEDIUM / HIGH.
 3. **Fairness Analysis** — If the model is "biased", explain what disparate impact means
    and why the score is low. If "fair", explain the reweighing mitigation applied.
-4. **Recommendation** — Actionable next step (e.g., "Switch to the Fair model" or
-   "Decision compliant with 80% rule").
-5. **Compliance Status** — Whether this decision meets the EEOC 80% rule standard.
+4. **Regulatory Compliance ({regulatory_framework})** — Explain how this decision and the model's logic aligns with the specific requirements of the {regulatory_framework}.
+5. **Recommendation** — Actionable next step (e.g., "Switch to the Fair model" or
+   "Decision compliant with regulatory standard").
 
 Keep the tone professional and suitable for an enterprise compliance report.
 Format the output in clean Markdown.
@@ -67,6 +67,7 @@ async def generate_audit_receipt(req: AuditRequest) -> AuditResponse:
         probability=req.probability,
         fairness_score=req.fairness_score or "N/A",
         features_formatted=features_formatted,
+        regulatory_framework=req.regulatory_framework,
     )
 
     response = _get_client().models.generate_content(

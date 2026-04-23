@@ -60,6 +60,7 @@ class AuditRequest(BaseModel):
     model_used: str
     applicant_features: dict
     fairness_score: Optional[float] = None
+    regulatory_framework: str = Field("EU AI Act", description="Regulatory Framework (e.g. EU AI Act, GDPR, US Fair Lending)")
 
 
 class AuditResponse(BaseModel):
