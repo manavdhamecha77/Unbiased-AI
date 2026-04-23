@@ -13,6 +13,7 @@ import PredictionHistory, { type HistoryEntry } from "./components/PredictionHis
 import ExplainPanel from "./components/ExplainPanel";
 import RegulatoryToggle from "./components/RegulatoryToggle";
 import FairnessDriftChart from "./components/FairnessDriftChart";
+import StressTestPanel from "./components/StressTestPanel";
 
 const API_BASE = "http://localhost:8000";
 
@@ -317,6 +318,11 @@ export default function Home() {
             <ExplainPanel
               biased={explainBiased}
               fair={useFairModel ? explainFair : null}
+            />
+
+            <StressTestPanel
+              lastFeatures={lastFeatures}
+              modelUsed={modelType}
             />
 
             {/* Causal DAG — click to expand */}

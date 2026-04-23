@@ -10,7 +10,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from app.routes import predict, fairness, audit, causal, explain
+from app.routes import predict, fairness, audit, causal, explain, stress
 
 app = FastAPI(
     title="Sentinel AI Governance API",
@@ -42,6 +42,7 @@ app.include_router(fairness.router, prefix="/api", tags=["Fairness"])
 app.include_router(audit.router, prefix="/api", tags=["Audit"])
 app.include_router(causal.router, prefix="/api", tags=["Causal"])
 app.include_router(explain.router, prefix="/api", tags=["Explain"])
+app.include_router(stress.router, prefix="/api", tags=["Stress"])
 
 
 @app.get("/health")

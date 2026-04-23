@@ -67,3 +67,14 @@ class AuditResponse(BaseModel):
     audit_receipt: str
     model_used: str
     risk_level: str
+
+
+# Robustness Stress Test
+
+class StressTestResponse(BaseModel):
+    original_prediction: PredictionResponse
+    perturbed_prediction: PredictionResponse
+    is_stable: bool
+    perturbed_feature: str
+    original_value: str
+    perturbed_value: str
