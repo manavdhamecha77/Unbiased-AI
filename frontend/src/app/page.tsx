@@ -12,6 +12,7 @@ import DagModal from "./components/DagModal";
 import PredictionHistory, { type HistoryEntry } from "./components/PredictionHistory";
 import ExplainPanel from "./components/ExplainPanel";
 import RegulatoryToggle from "./components/RegulatoryToggle";
+import FairnessDriftChart from "./components/FairnessDriftChart";
 
 const API_BASE = "http://localhost:8000";
 
@@ -340,6 +341,15 @@ export default function Home() {
               />
             </button>
           </div>
+        </section>
+
+        {/* Analytics: Model Drift */}
+        <section className="w-full">
+          <FairnessDriftChart
+            currentDir={fairness?.disparate_impact_ratio ?? null}
+            isFairModel={useFairModel}
+            historyTrigger={history.length}
+          />
         </section>
 
         {/* Prediction History */}
