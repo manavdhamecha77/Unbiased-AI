@@ -12,8 +12,11 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 | ------------------------------ | -------------------------------------------------------------------------------------------- |
 | **Prediction UI**        | Input applicant data and get income predictions from biased or fair models                   |
 | **Mitigation Toggle**    | Switch between the raw (biased) model and the AIF360 reweighed (fair) model                  |
+| **Regulatory Engine**    | Toggle between EU AI Act, GDPR, or US Fair Lending compliance frameworks                     |
 | **Live Fairness Gauge**  | See the Disparate Impact Ratio improve from ~0.35 → ~0.95 in real-time                      |
-| **Gemini Audit Receipt** | AI-generated compliance report explaining why a decision was fair or unfair                  |
+| **Gemini Audit Receipt** | AI-powered compliance report with PDF/JSON export options                                    |
+| **Drift Monitor**        | Real-time chart tracking model fairness (DIR) across inference batches                       |
+| **Adversarial Stress**   | Probe robustness by automatically flipping sensitive attributes (gender-swap test)            |
 | **Causal DAG**           | Pre-computed causal graph showing how sensitive attributes (sex, race) influence predictions |
 
 ---
@@ -89,11 +92,10 @@ Open [http://localhost:3000](http://localhost:3000) — the frontend calls the b
 
 ## 📡 API Endpoints
 
-| Method   | Path                | Description                                                     |
-| -------- | ------------------- | --------------------------------------------------------------- |
 | `POST` | `/api/predict`    | Returns prediction from biased or fair model                    |
 | `POST` | `/api/fairness`   | Computes Disparate Impact Ratio & Demographic Parity Difference |
 | `POST` | `/api/audit`      | Generates a Gemini-powered audit receipt                        |
+| `POST` | `/api/stress`     | Runs adversarial stress test (attribute flipping)               |
 | `GET`  | `/api/causal/dag` | Returns the pre-computed causal DAG image URL                   |
 | `GET`  | `/health`         | Health check                                                    |
 
@@ -127,6 +129,7 @@ The result: **DIR improves to ~0.95** while maintaining comparable accuracy.
 | Bias Mitigation  | AIF360 (Reweighing)                      |
 | Fairness Metrics | Fairlearn                                |
 | Explainability   | Gemini 2.5 Flash                           |
+| Analytics        | Recharts                                 |
 | Causal Analysis  | DoWhy · Matplotlib                      |
 | Serialization    | Joblib                                   |
 
@@ -147,7 +150,8 @@ Unbiased-AI/
 │   │   │   ├── predict.py
 │   │   │   ├── fairness.py
 │   │   │   ├── audit.py
-│   │   │   └── causal.py
+│   │   │   ├── causal.py
+│   │   │   └── stress.py
 │   │   └── services/                # Business logic
 │   │       ├── model_service.py
 │   │       ├── fairness_service.py

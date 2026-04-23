@@ -50,13 +50,14 @@ Unbiased-AI/
 
 ## 🎯 MVP Components
 
-| Component                      | Description                                       | Status  |
-| ------------------------------ | ------------------------------------------------- | ------- |
-| **Prediction UI**        | Form where user inputs dummy applicant data       | 🔲 TODO |
-| **Governance View**      | Toggle switching API between Biased → Fair model | 🔲 TODO |
-| **Live Fairness Metric** | Gauge showing Disparate Impact Ratio improving    | 🔲 TODO |
-| **Audit Receipt Drawer** | Gemini-generated explanation in a slide-out panel | 🔲 TODO |
-| **Causal DAG**           | Static image showing sensitive attribute pathways | 🔲 TODO |
+| **Prediction UI**        | Form where user inputs dummy applicant data       | ✅ DONE |
+| **Governance View**      | Toggle switching API between Biased → Fair model | ✅ DONE |
+| **Live Fairness Metric** | Gauge showing Disparate Impact Ratio improving    | ✅ DONE |
+| **Audit Receipt Drawer** | Gemini-generated explanation in a slide-out panel | ✅ DONE |
+| **Causal DAG**           | Static image showing sensitive attribute pathways | ✅ DONE |
+| **Regulatory Engine**    | Toggle between EU AI Act, GDPR, US Fair Lending   | ✅ DONE |
+| **Robustness Module**    | Adversarial Stress Testing (Gender Swap)          | ✅ DONE |
+| **Fairness Analytics**   | Real-time DIR drift monitoring chart              | ✅ DONE |
 
 ---
 
@@ -89,7 +90,7 @@ Unbiased-AI/
 - [X] Build the Fairness Gauge (real-time DIR visualization)
 - [X] Build the Audit Receipt Drawer (Gemini explanation)
 - [X] Add Causal DAG modal/section
-- [ ] Polish UI: animations, dark theme, micro-interactions
+- [X] Polish UI: animations, dark theme, micro-interactions
 - [ ] Record Demo Video
 
 ---
@@ -161,11 +162,10 @@ npm run dev
 
 ### API Endpoints
 
-| Method   | Path                | Description                                  |
-| -------- | ------------------- | -------------------------------------------- |
 | `POST` | `/api/predict`    | Returns prediction from biased or fair model |
 | `POST` | `/api/fairness`   | Computes DIR and DPD for the selected model  |
 | `POST` | `/api/audit`      | Generates Gemini audit receipt               |
+| `POST` | `/api/stress`     | Runs adversarial stress test                 |
 | `GET`  | `/api/causal/dag` | Returns causal DAG image URL                 |
 | `GET`  | `/health`         | Health check                                 |
 
@@ -217,4 +217,20 @@ npm run dev
 | --------------- | -------------------------------- |
 | `next`        | React framework (App Router)     |
 | `tailwindcss` | Utility-first CSS                |
+| `recharts`    | Real-time analytics charts       |
 | React state     | Model toggle & real-time metrics |
+
+
+---
+
+## 🚀 Enterprise Expansion Phase (COMPLETED)
+
+### Phase 1: Compliance
+- [X] Regulatory Policy Engine (EU AI Act, GDPR, US Fair Lending)
+- [X] PDF/JSON Audit Receipt Exports
+
+### Phase 2: Analytics
+- [X] Fairness Drift Chart (Real-time DIR tracking)
+
+### Phase 3: Robustness
+- [X] Adversarial Stress Test (Gender-swapped resume probing)
