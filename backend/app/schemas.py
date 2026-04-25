@@ -47,6 +47,8 @@ class FairnessResponse(BaseModel):
     model_config = {"json_encoders": {float: lambda v: round(v, 4) if isinstance(v, float) and not (v != v) else 0.0}}
     disparate_impact_ratio: float
     demographic_parity_difference: float
+    accuracy: float = Field(0.0, description="Model accuracy")
+    f1_score: float = Field(0.0, description="Model F1 score")
     model_type: str
     is_fair: bool = Field(..., description="True if DIR ≥ 0.8 (80% rule)")
 
@@ -78,3 +80,19 @@ class StressTestResponse(BaseModel):
     perturbed_feature: str
     original_value: str
     perturbed_value: str
+
+# Unlearning
+
+class UnlearnRequest(BaseModel):
+    model_type: str = Field("biased", description="Model to perform unlearning on")
+    feature: str = Field("sex", description="Feature to unlearn")
+    value: str = Field("Female", description="Specific demographic group to unlearn")
+    learning_rate: float = Field(0.5, description="Gradient ascent step size")
+    epochs: int = Field(50, description="Number of ascent steps")
+
+class UnlearnResponse(BaseModel):
+    message: str
+    original_accuracy: float
+    new_accuracy: float
+    original_dir: float
+    new_dir: float

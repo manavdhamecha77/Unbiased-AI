@@ -6,6 +6,7 @@ Demographic Parity Difference on the test dataset.
 import joblib
 import numpy as np
 import pandas as pd
+from sklearn.metrics import accuracy_score, f1_score
 from fairlearn.metrics import demographic_parity_difference
 
 from app.config import MODEL_DIR, DATA_DIR
@@ -66,9 +67,15 @@ def compute_fairness_metrics(req: FairnessRequest) -> FairnessResponse:
     if not np.isfinite(dpd_value):
         dpd_value = 0.0
 
+    # ----- Performance Metrics -----
+    acc_value = float(accuracy_score(y_test, y_pred))
+    f1_value = float(f1_score(y_test, y_pred))
+
     return FairnessResponse(
         disparate_impact_ratio=round(dir_value, 4),
         demographic_parity_difference=round(dpd_value, 4),
+        accuracy=round(acc_value, 4),
+        f1_score=round(f1_value, 4),
         model_type=model_type,
         is_fair=dir_value >= 0.8,
     )

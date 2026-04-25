@@ -14,6 +14,8 @@ import ExplainPanel from "./components/ExplainPanel";
 import RegulatoryToggle from "./components/RegulatoryToggle";
 import FairnessDriftChart from "./components/FairnessDriftChart";
 import StressTestPanel from "./components/StressTestPanel";
+import ModelComparison from "./components/ModelComparison";
+import UnlearnPanel from "./components/UnlearnPanel";
 
 const API_BASE = "http://localhost:8000";
 
@@ -27,6 +29,8 @@ interface PredictionData {
 interface FairnessData {
   disparate_impact_ratio: number;
   demographic_parity_difference: number;
+  accuracy: number;
+  f1_score: number;
   model_type: string;
   is_fair: boolean;
 }
@@ -55,6 +59,9 @@ export default function Home() {
   const [lastFeatures, setLastFeatures] = useState<Record<string, unknown>>({});
   const [toast, setToast] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEntry[]>([]);
+
+  const [compareBiased, setCompareBiased] = useState<FairnessData | null>(null);
+  const [compareFair, setCompareFair] = useState<FairnessData | null>(null);
 
   interface ExplainData { model_type: string; features: string[]; weights: number[]; }
   const [explainBiased, setExplainBiased] = useState<ExplainData | null>(null);
@@ -92,15 +99,30 @@ export default function Home() {
     }
   }, []);
 
-  // Fetch biased model fairness on mount so the dashboard isn't blank
-  useEffect(() => {
-    fetchFairness("biased");
-    // Fetch explain for both models on mount
+  // Abstracting comparison fetch to reuse after unlearning
+  const fetchAllMetrics = useCallback(async () => {
+    Promise.all([
+      fetch(`${API_BASE}/api/fairness`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sensitive_feature: "sex", model_type: "biased" }) }).then(r => r.json()),
+      fetch(`${API_BASE}/api/fairness`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sensitive_feature: "sex", model_type: "fair" }) }).then(r => r.json()),
+    ]).then(([b, f]) => { setCompareBiased(b); setCompareFair(f); }).catch(() => {});
+
     Promise.all([
       fetch(`${API_BASE}/api/explain?model_type=biased`).then(r => r.json()),
       fetch(`${API_BASE}/api/explain?model_type=fair`).then(r => r.json()),
     ]).then(([b, f]) => { setExplainBiased(b); setExplainFair(f); }).catch(() => {});
-  }, [fetchFairness]);
+  }, []);
+
+  // Fetch biased model fairness on mount so the dashboard isn't blank
+  useEffect(() => {
+    fetchFairness("biased");
+    fetchAllMetrics();
+  }, [fetchFairness, fetchAllMetrics]);
+
+  const handleUnlearnComplete = async () => {
+    // Re-fetch all metrics so gauges and charts update
+    await fetchFairness(modelType);
+    await fetchAllMetrics();
+  };
 
   const handleToggle = async () => {
     const newModel = !useFairModel;
@@ -325,6 +347,11 @@ export default function Home() {
               modelUsed={modelType}
             />
 
+            <UnlearnPanel
+              modelUsed={modelType}
+              onUnlearnComplete={handleUnlearnComplete}
+            />
+
             {/* Causal DAG — click to expand */}
             <button
               onClick={() => setDagModalOpen(true)}
@@ -349,8 +376,9 @@ export default function Home() {
           </div>
         </section>
 
-        {/* Analytics: Model Drift */}
-        <section className="w-full">
+        {/* Analytics: Model Comparison and Drift */}
+        <section className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
+          <ModelComparison biasedData={compareBiased} fairData={compareFair} />
           <FairnessDriftChart
             currentDir={fairness?.disparate_impact_ratio ?? null}
             isFairModel={useFairModel}
