@@ -1,4 +1,4 @@
-# 🛡️ Sentinel — AI Governance Platform
+# AI Governance Platform
 
 > **Trustworthy, Explainable, and Compliant AI Governance for Enterprise.**
 
@@ -6,7 +6,7 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 
 ---
 
-## 🎯 What It Does
+## What It Does
 
 | Feature                        | Description                                                                                  |
 | ------------------------------ | -------------------------------------------------------------------------------------------- |
@@ -16,12 +16,12 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 | **Live Fairness Gauge**  | See the Disparate Impact Ratio improve from ~0.35 → ~0.95 in real-time                      |
 | **Gemini Audit Receipt** | AI-powered compliance report with PDF/JSON export options                                    |
 | **Drift Monitor**        | Real-time chart tracking model fairness (DIR) across inference batches                       |
-| **Adversarial Stress**   | Probe robustness by automatically flipping sensitive attributes (gender-swap test)            |
+| **Adversarial Stress**   | Probe robustness by automatically flipping sensitive attributes (gender-swap test)           |
 | **Causal DAG**           | Pre-computed causal graph showing how sensitive attributes (sex, race) influence predictions |
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────┐         ┌─────────────────────────────────┐
@@ -33,14 +33,14 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 │  • Fairness Gauge   │         │  GET  /api/causal/dag → DAG     │
 │  • Audit Drawer     │         │                                 │
 │  • Mitigation Toggle│         │  Models: Logistic Regression    │
-└─────────────────────┘         │  Fairness: AIF360 Reweighing   │
-                                │  Audit: Gemini 2.5 Flash          │
+└─────────────────────┘         │  Fairness: AIF360 Reweighing    │
+                                │  Audit: Gemini 2.5 Flash        │
                                 └─────────────────────────────────┘
 ```
 
 ---
 
-## ⚡ Quick Start
+## Quick Start
 
 ### Prerequisites
 
@@ -90,7 +90,7 @@ Open [http://localhost:3000](http://localhost:3000) — the frontend calls the b
 
 ---
 
-## 📡 API Endpoints
+## API Endpoints
 
 | `POST` | `/api/predict`    | Returns prediction from biased or fair model                    |
 | `POST` | `/api/fairness`   | Computes Disparate Impact Ratio & Demographic Parity Difference |
@@ -101,7 +101,7 @@ Open [http://localhost:3000](http://localhost:3000) — the frontend calls the b
 
 ---
 
-## 🔬 How Fairness Mitigation Works
+## How Fairness Mitigation Works
 
 ### The Problem
 
@@ -119,7 +119,7 @@ The result: **DIR improves to ~0.95** while maintaining comparable accuracy.
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer            | Technology                               |
 | ---------------- | ---------------------------------------- |
@@ -128,14 +128,14 @@ The result: **DIR improves to ~0.95** while maintaining comparable accuracy.
 | ML Models        | Scikit-Learn (Logistic Regression)       |
 | Bias Mitigation  | AIF360 (Reweighing)                      |
 | Fairness Metrics | Fairlearn                                |
-| Explainability   | Gemini 2.5 Flash                           |
+| Explainability   | Gemini 2.5 Flash                         |
 | Analytics        | Recharts                                 |
 | Causal Analysis  | DoWhy · Matplotlib                      |
 | Serialization    | Joblib                                   |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 Unbiased-AI/
@@ -162,9 +162,3 @@ Unbiased-AI/
 └── frontend/                        # Next.js 15 app
     └── src/app/                     # App Router
 ```
-
----
-
-## 📄 License
-
-MIT
