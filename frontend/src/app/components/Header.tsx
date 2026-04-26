@@ -22,7 +22,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <a
-            href="http://localhost:8000/docs"
+            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/docs`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-muted hover:text-foreground transition-colors"

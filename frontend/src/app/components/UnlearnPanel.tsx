@@ -18,7 +18,7 @@ export default function UnlearnPanel({ modelUsed, onUnlearnComplete }: UnlearnPa
     setResult(null);
     
     try {
-      const res = await fetch("http://localhost:8000/api/unlearn", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/unlearn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
