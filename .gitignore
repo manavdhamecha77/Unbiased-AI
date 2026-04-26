@@ -23,8 +23,6 @@ backend/models/*.joblib
 backend/data/*.joblib
 backend/data/adult.csv
 
-# Static generated assets
-backend/static/causal_dag.png
 
 # IDE
 .vscode/

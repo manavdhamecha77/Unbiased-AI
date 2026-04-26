@@ -1,5 +1,7 @@
 "use client";
 
+import { API_BASE } from "../../lib/api";
+
 export default function Header() {
   return (
     <header className="w-full border-b border-card-border bg-card/50 backdrop-blur-md sticky top-0 z-30">
@@ -22,7 +24,7 @@ export default function Header() {
 
         <div className="flex items-center gap-4">
           <a
-            href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/docs`}
+            href={`${API_BASE}/docs`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs text-muted hover:text-foreground transition-colors"

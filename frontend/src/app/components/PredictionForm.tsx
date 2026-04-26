@@ -1,36 +1,55 @@
 "use client";
 
 import { useState } from "react";
+import { User, Briefcase, GraduationCap, DollarSign, Clock } from "lucide-react";
 
-const WORKCLASS_OPTIONS = [
-  "Private", "Self-emp-not-inc", "Self-emp-inc", "Federal-gov",
-  "Local-gov", "State-gov", "Without-pay", "Never-worked",
-];
-const EDUCATION_OPTIONS = [
-  "Bachelors", "Some-college", "11th", "HS-grad", "Prof-school",
-  "Assoc-acdm", "Assoc-voc", "9th", "7th-8th", "12th",
-  "Masters", "1st-4th", "10th", "Doctorate", "5th-6th", "Preschool",
-];
-const MARITAL_OPTIONS = [
-  "Married-civ-spouse", "Divorced", "Never-married",
-  "Separated", "Widowed", "Married-spouse-absent", "Married-AF-spouse",
-];
-const OCCUPATION_OPTIONS = [
-  "Tech-support", "Craft-repair", "Other-service", "Sales",
-  "Exec-managerial", "Prof-specialty", "Handlers-cleaners",
-  "Machine-op-inspct", "Adm-clerical", "Farming-fishing",
-  "Transport-moving", "Priv-house-serv", "Protective-serv", "Armed-Forces",
-];
-const RELATIONSHIP_OPTIONS = [
-  "Wife", "Own-child", "Husband", "Not-in-family", "Other-relative", "Unmarried",
-];
-const RACE_OPTIONS = ["White", "Asian-Pac-Islander", "Amer-Indian-Eskimo", "Other", "Black"];
+const WORKCLASS_OPTIONS = ["Private", "Self-emp", "Gov", "Other"];
+const EDUCATION_OPTIONS = ["Bachelors", "College", "HS-grad", "Masters", "Doctorate"];
+const OCCUPATION_OPTIONS = ["Exec", "Prof", "Sales", "Tech", "Service", "Other"];
+const RACE_OPTIONS = ["White", "Black", "Asian", "Other"];
 const SEX_OPTIONS = ["Male", "Female"];
 
 interface PredictionFormProps {
   onSubmit: (data: Record<string, unknown>) => void;
   loading: boolean;
 }
+
+interface InputFieldProps {
+  label: string;
+  field: string;
+  type?: string;
+  options?: string[];
+  sensitive?: boolean;
+  icon?: React.ComponentType<{ size: number; className?: string }>;
+  formData: Record<string, unknown>;
+  onChange: (field: string, value: string | number) => void;
+}
+
+const InputField = ({ label, field, type = "text", options, sensitive, icon: Icon, formData, onChange }: InputFieldProps) => (
+  <div className="space-y-1.5">
+    <label className="text-[9px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
+      {Icon && <Icon size={10} className="text-accent/50" />}
+      {label}
+      {sensitive && <span className="ml-auto text-[7px] bg-danger/10 text-danger px-1 rounded">SENSITIVE</span>}
+    </label>
+    {options ? (
+      <select
+        value={String(formData[field] ?? "")}
+        onChange={(e) => onChange(field, e.target.value)}
+        className="w-full bg-sidebar/50 border border-white/5 rounded-lg px-2 py-2 text-[11px] text-foreground focus:outline-none focus:border-accent/50 transition-all cursor-pointer appearance-none"
+      >
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    ) : (
+      <input
+        type={type}
+        value={String(formData[field] ?? "")}
+        onChange={(e) => onChange(field, type === "number" ? parseInt(e.target.value) || 0 : e.target.value)}
+        className="w-full bg-sidebar/50 border border-white/5 rounded-lg px-2 py-2 text-[11px] text-foreground focus:outline-none focus:border-accent/50 transition-all"
+      />
+    )}
+  </div>
+);
 
 export default function PredictionForm({ onSubmit, loading }: PredictionFormProps) {
   const [formData, setFormData] = useState({
@@ -58,88 +77,38 @@ export default function PredictionForm({ onSubmit, loading }: PredictionFormProp
     onSubmit(formData);
   };
 
-  const SelectField = ({ label, field, options, sensitive }: {
-    label: string; field: string; options: string[]; sensitive?: boolean;
-  }) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted flex items-center gap-1.5">
-        {label}
-        {sensitive && (
-          <span className="text-[10px] px-1.5 py-0.5 rounded bg-danger/10 text-danger font-bold">
-            SENSITIVE
-          </span>
-        )}
-      </label>
-      <select
-        value={formData[field as keyof typeof formData]}
-        onChange={(e) => handleChange(field, e.target.value)}
-        className="w-full px-3 py-2 rounded-lg bg-background border border-card-border text-sm text-foreground focus:outline-none focus:border-accent transition-colors appearance-none cursor-pointer"
-      >
-        {options.map((opt) => (
-          <option key={opt} value={opt}>{opt}</option>
-        ))}
-      </select>
-    </div>
-  );
-
-  const NumberField = ({ label, field, min, max }: {
-    label: string; field: string; min: number; max: number;
-  }) => (
-    <div className="flex flex-col gap-1.5">
-      <label className="text-xs font-medium text-muted">{label}</label>
-      <input
-        type="number"
-        value={formData[field as keyof typeof formData]}
-        onChange={(e) => handleChange(field, parseInt(e.target.value) || 0)}
-        min={min}
-        max={max}
-        className="w-full px-3 py-2 rounded-lg bg-background border border-card-border text-sm text-foreground focus:outline-none focus:border-accent transition-colors"
-      />
-    </div>
-  );
-
   return (
-    <form onSubmit={handleSubmit} className="glass-card p-6 space-y-5">
-      <h2 className="text-lg font-semibold flex items-center gap-2">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" strokeWidth="2">
-          <path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2" />
-          <circle cx="9" cy="7" r="4" />
-          <path d="M22 21v-2a4 4 0 00-3-3.87" />
-          <path d="M16 3.13a4 4 0 010 7.75" />
-        </svg>
-        Applicant Data
-      </h2>
+    <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="grid grid-cols-2 gap-4">
+        <InputField label="Age" field="age" type="number" icon={User} formData={formData} onChange={handleChange} />
+        <InputField label="Hours/Wk" field="hours_per_week" type="number" icon={Clock} formData={formData} onChange={handleChange} />
+        
+        <div className="col-span-2 grid grid-cols-2 gap-4 p-3 rounded-xl bg-white/5 border border-white/5">
+           <InputField label="Race" field="race" options={RACE_OPTIONS} sensitive formData={formData} onChange={handleChange} />
+           <InputField label="Sex" field="sex" options={SEX_OPTIONS} sensitive formData={formData} onChange={handleChange} />
+        </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-        <NumberField label="Age" field="age" min={17} max={90} />
-        <SelectField label="Workclass" field="workclass" options={WORKCLASS_OPTIONS} />
-        <SelectField label="Education" field="education" options={EDUCATION_OPTIONS} />
-        <NumberField label="Education Rank" field="education_num" min={1} max={16} />
-        <SelectField label="Marital Status" field="marital_status" options={MARITAL_OPTIONS} />
-        <SelectField label="Occupation" field="occupation" options={OCCUPATION_OPTIONS} />
-        <SelectField label="Relationship" field="relationship" options={RELATIONSHIP_OPTIONS} />
-        <SelectField label="Race" field="race" options={RACE_OPTIONS} sensitive />
-        <SelectField label="Sex" field="sex" options={SEX_OPTIONS} sensitive />
-        <NumberField label="Capital Gain" field="capital_gain" min={0} max={99999} />
-        <NumberField label="Capital Loss" field="capital_loss" min={0} max={9999} />
-        <NumberField label="Hours/Week" field="hours_per_week" min={1} max={99} />
+        <InputField label="Education" field="education" options={EDUCATION_OPTIONS} icon={GraduationCap} formData={formData} onChange={handleChange} />
+        <InputField label="Edu Rank" field="education_num" type="number" formData={formData} onChange={handleChange} />
+        
+        <InputField label="Occupation" field="occupation" options={OCCUPATION_OPTIONS} icon={Briefcase} formData={formData} onChange={handleChange} />
+        <InputField label="Workclass" field="workclass" options={WORKCLASS_OPTIONS} formData={formData} onChange={handleChange} />
+        
+        <InputField label="Cap Gain" field="capital_gain" type="number" icon={DollarSign} formData={formData} onChange={handleChange} />
+        <InputField label="Cap Loss" field="capital_loss" type="number" formData={formData} onChange={handleChange} />
       </div>
 
       <button
-        id="predict-btn"
         type="submit"
         disabled={loading}
-        className="w-full py-3 rounded-xl font-semibold text-sm bg-accent text-white hover:brightness-110 transition-all disabled:opacity-50 cursor-pointer"
+        className="w-full py-3 rounded-xl bg-accent text-white font-bold text-xs hover:brightness-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {loading ? (
-          <span className="flex items-center justify-center gap-2">
-            <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-            Processing...
-          </span>
-        ) : (
-          "Run Prediction"
-        )}
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        ) : "COMPUTE PREDICTION"}
       </button>
     </form>
   );
 }
+
+

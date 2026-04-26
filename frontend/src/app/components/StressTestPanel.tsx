@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { AlertTriangle, CheckCircle, ShieldAlert } from "lucide-react";
+import { API_BASE } from "../../lib/api";
 
 interface StressTestPanelProps {
   lastFeatures: Record<string, unknown> | null;
@@ -14,14 +16,14 @@ export default function StressTestPanel({ lastFeatures, modelUsed }: StressTestP
   const [error, setError] = useState<string | null>(null);
 
   const handleTest = async () => {
-    if (!lastFeatures) {
-      setError("Please run a prediction first.");
+    if (!lastFeatures || Object.keys(lastFeatures).length === 0) {
+      setError("Run a prediction first");
       return;
     }
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'}/api/stress`, {
+      const res = await fetch(`${API_BASE}/api/stress`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...lastFeatures, model_type: modelUsed }),
@@ -29,7 +31,7 @@ export default function StressTestPanel({ lastFeatures, modelUsed }: StressTestP
       const data = await res.json();
       if (data.detail) throw new Error(data.detail);
       setResult(data);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -38,62 +40,79 @@ export default function StressTestPanel({ lastFeatures, modelUsed }: StressTestP
   };
 
   return (
-    <div className="glass-card p-6 flex flex-col space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="glass-card p-5 flex flex-col h-full">
+      <div className="flex items-start justify-between mb-4">
         <div>
-          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
-            Adversarial Stress Test
-          </h3>
-          <p className="text-xs text-muted mt-1">Probe model with perturbed inputs (e.g., gender-swap) to ensure decision stability.</p>
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.2em] text-muted mb-1">Robustness Probe</h3>
+          <h4 className="text-sm font-bold text-foreground">Stress Testing</h4>
         </div>
         <button
           onClick={handleTest}
           disabled={loading || !lastFeatures || Object.keys(lastFeatures).length === 0}
-          className="px-4 py-2 bg-danger/10 text-danger text-xs font-semibold rounded hover:bg-danger/20 transition-colors disabled:opacity-50 cursor-pointer"
+          className="p-2 rounded-lg bg-danger/10 text-danger hover:bg-danger/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed border border-danger/20"
+          title="Run Adversarial Test"
         >
-          {loading ? "Testing..." : "Run Stress Test"}
+          {loading ? (
+            <div className="w-4 h-4 border-2 border-danger border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <ShieldAlert size={16} />
+          )}
         </button>
       </div>
 
-      {error && <p className="text-xs text-danger">{error}</p>}
+      <p className="text-[11px] text-muted leading-relaxed mb-4">
+        Probe model stability with gender-swapped inputs.
+      </p>
+
+      {error && <p className="text-[10px] text-danger bg-danger/5 p-2 rounded border border-danger/10">{error}</p>}
+
+      {!result && !error && (
+        <div className="mt-auto pt-4 border-t border-white/5 text-center">
+          <p className="text-[10px] text-muted italic">Click icon to probe current features</p>
+        </div>
+      )}
 
       {result && (
-        <div className="mt-4 bg-card-border/50 p-4 rounded-xl border border-card-border space-y-3 animate-fade-in">
-          <div className="flex justify-between items-center pb-2 border-b border-card-border">
-            <span className="text-sm text-muted">Stability Result</span>
+        <div className="mt-auto space-y-4 animate-fade-in">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5">
+            <span className="text-[10px] text-muted font-bold uppercase">Stability</span>
             {result.is_stable ? (
-              <span className="px-2 py-1 text-[10px] font-bold bg-success/20 text-success rounded-full">STABLE</span>
+              <span className="flex items-center gap-1 text-[10px] font-bold text-success">
+                <CheckCircle size={12} /> STABLE
+              </span>
             ) : (
-              <span className="px-2 py-1 text-[10px] font-bold bg-danger/20 text-danger rounded-full">FAILED</span>
+              <span className="flex items-center gap-1 text-[10px] font-bold text-danger">
+                <AlertTriangle size={12} /> BIASED
+              </span>
             )}
           </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <p className="text-xs text-muted uppercase">Original ({result.original_value})</p>
-              <p className={`text-lg font-bold ${result.original_prediction.prediction === 1 ? 'text-success' : 'text-danger'}`}>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="p-2 rounded bg-white/5">
+              <p className="text-[9px] text-muted uppercase font-bold mb-1">Orig ({result.original_value})</p>
+              <p className={`text-xs font-bold ${result.original_prediction.prediction === 1 ? 'text-success' : 'text-danger'}`}>
                 {result.original_prediction.prediction_label}
               </p>
             </div>
-            <div className="space-y-1 border-l border-card-border pl-4">
-              <p className="text-xs text-muted uppercase">Perturbed ({result.perturbed_value})</p>
-              <p className={`text-lg font-bold ${result.perturbed_prediction.prediction === 1 ? 'text-success' : 'text-danger'}`}>
+            <div className="p-2 rounded bg-white/5">
+              <p className="text-[9px] text-muted uppercase font-bold mb-1">Swap ({result.perturbed_value})</p>
+              <p className={`text-xs font-bold ${result.perturbed_prediction.prediction === 1 ? 'text-success' : 'text-danger'}`}>
                 {result.perturbed_prediction.prediction_label}
               </p>
             </div>
           </div>
 
           {!result.is_stable && (
-            <p className="text-xs text-danger/80 mt-2 bg-danger/10 p-2 rounded border border-danger/20">
-              Warning: The model altered its decision solely based on flipping {result.perturbed_feature} from {result.original_value} to {result.perturbed_value}. This indicates high bias risk and low adversarial robustness.
-            </p>
+            <div className="p-2 rounded bg-danger/10 border border-danger/20">
+              <p className="text-[9px] text-danger leading-tight">
+                Decision flipped on {result.perturbed_feature} swap.
+                <strong className="block mt-1">Vulnerability Detected.</strong>
+              </p>
+            </div>
           )}
         </div>
       )}
     </div>
   );
 }
+
