@@ -7,7 +7,7 @@ interface FairnessGaugeProps {
   prevValue?: number;
 }
 
-export default function FairnessGauge({ value, label, isFair, prevValue }: FairnessGaugeProps) {
+export default function FairnessGauge({ value, label, isFair }: FairnessGaugeProps) {
   const radius = 42;
   const circumference = 2 * Math.PI * radius;
   const safeValue = isNaN(value) || value == null ? 0 : value;

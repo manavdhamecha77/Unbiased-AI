@@ -1,7 +1,8 @@
 "use client";
 
 import PageHeader from "../components/PageHeader";
-import { Settings, Shield, Bell, Key, User, Cpu } from "lucide-react";
+import { Settings, Shield, Bell, Key } from "lucide-react";
+import { API_BASE } from "../../lib/api";
 
 export default function SettingsPage() {
   return (
@@ -37,7 +38,7 @@ export default function SettingsPage() {
                    </div>
                    <div className="space-y-1.5">
                       <label className="text-[10px] text-muted uppercase font-bold tracking-widest">FastAPI Endpoint</label>
-                      <input type="text" value="http://localhost:8000" className="w-full bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-accent" />
+                      <input type="text" value={API_BASE} readOnly className="w-full bg-white/5 border border-white/5 rounded-lg px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-1 focus:ring-accent" />
                    </div>
                 </div>
                 <button className="bg-accent text-white px-4 py-2 rounded-lg text-xs font-bold w-full">Save API Settings</button>

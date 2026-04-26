@@ -14,9 +14,9 @@ import FairnessDriftChart from "./components/FairnessDriftChart";
 import StressTestPanel from "./components/StressTestPanel";
 import ModelComparison from "./components/ModelComparison";
 import UnlearnPanel from "./components/UnlearnPanel";
-import { ShieldCheck, Database, LayoutGrid, Info, Activity, Target, Zap, BarChart3 } from "lucide-react";
+import { ShieldCheck, Database, LayoutGrid, Activity, Zap, BarChart3 } from "lucide-react";
 
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../lib/api";
 
 interface PredictionData {
   prediction: number;
@@ -112,9 +112,12 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetchFairness("biased");
-    fetchAllMetrics();
-  }, []);
+    const init = async () => {
+      await fetchFairness("biased");
+      await fetchAllMetrics();
+    };
+    init();
+  }, [fetchFairness, fetchAllMetrics]);
 
   const handleUnlearnComplete = async () => {
     await fetchFairness(modelType);
@@ -281,6 +284,7 @@ export default function Home() {
                   probability={prediction.probability}
                   modelUsed={prediction.model_used}
                   onRequestAudit={handleRequestAudit}
+                  auditLoading={auditLoading}
                 />
               ) : (
                 <div className="text-center py-12">

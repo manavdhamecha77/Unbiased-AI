@@ -3,9 +3,10 @@
 import { useState } from "react";
 import PageHeader from "../components/PageHeader";
 import DagModal from "../components/DagModal";
+import Image from "next/image";
 import { GitBranch, Info, Maximize2, ShieldCheck, Target, ArrowRight } from "lucide-react";
 
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../../lib/api";
 
 export default function CausalDiscovery() {
   const [dagModalOpen, setDagModalOpen] = useState(false);
@@ -43,7 +44,9 @@ export default function CausalDiscovery() {
            <div className="grid grid-cols-12 gap-8">
               <div className="col-span-12 lg:col-span-8">
                  <div className="glass-card p-8 bg-sidebar/30 relative group flex items-center justify-center min-h-[600px] border-2 border-dashed border-white/5">
-                    <img
+                    <Image
+                       width={800}
+                       height={500}
                       src={`${API_BASE}/static/causal_dag.png`}
                       alt="Causal DAG"
                       className="max-w-full max-h-[500px] object-contain opacity-80 group-hover:opacity-100 transition-opacity cursor-pointer p-4"
@@ -109,7 +112,7 @@ export default function CausalDiscovery() {
                  <div className="glass-card p-6 bg-accent/5 border border-accent/20">
                     <h4 className="text-xs font-bold text-foreground mb-2">Why Causal Inference?</h4>
                     <p className="text-[11px] text-muted leading-relaxed mb-4">
-                       Correlation-based fairness metrics can be misleading. Sentinel uses causal graphs to distinguish between "fair" and "unfair" variance.
+                       Correlation-based fairness metrics can be misleading. Sentinel uses causal graphs to distinguish between &quot;fair&quot; and &quot;unfair&quot; variance.
                     </p>
                     <button className="text-[10px] font-black text-accent uppercase tracking-widest flex items-center gap-1 hover:gap-2 transition-all">
                        READ WHITE PAPER <ArrowRight size={12} />

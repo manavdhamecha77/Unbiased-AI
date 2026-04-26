@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Eraser, RotateCcw, ZapOff } from "lucide-react";
+import { API_BASE } from "../../lib/api";
 
 interface UnlearnPanelProps {
   modelUsed: string;
@@ -19,7 +20,7 @@ export default function UnlearnPanel({ modelUsed, onUnlearnComplete }: UnlearnPa
     setResult(null);
     
     try {
-      const res = await fetch("http://localhost:8000/api/unlearn", {
+      const res = await fetch(`${API_BASE}/api/unlearn`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -37,7 +38,7 @@ export default function UnlearnPanel({ modelUsed, onUnlearnComplete }: UnlearnPa
         setResult(data);
         onUnlearnComplete();
       }
-    } catch (e) {
+    } catch {
       setError("Failed to execute unlearning.");
     } finally {
       setLoading(false);
@@ -70,7 +71,7 @@ export default function UnlearnPanel({ modelUsed, onUnlearnComplete }: UnlearnPa
         ) : (
             <>
                 <Eraser size={14} />
-                Unlearn "Female" Patterns
+                Unlearn &quot;Female&quot; Patterns
             </>
         )}
       </button>

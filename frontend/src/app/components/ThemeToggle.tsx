@@ -9,7 +9,7 @@ export default function ThemeToggle() {
   useEffect(() => {
     const saved = localStorage.getItem("theme");
     if (saved === "light") {
-      setIsLight(true);
+      requestAnimationFrame(() => setIsLight(true));
       document.documentElement.classList.add("light");
     }
   }, []);

@@ -2,7 +2,7 @@
 
 > **Trustworthy, Explainable, and Compliant AI Governance for Enterprise.**
 
-Sentinel is a full-stack platform that detects, mitigates, and audits bias in machine learning models. It demonstrates how a simple Logistic Regression model trained on the [Adult Census Income](https://archive.ics.uci.edu/ml/datasets/adult) dataset can produce discriminatory outcomes  and how fairness interventions fix them in real-time.
+Sentinel is a full-stack platform that detects, mitigates, and audits bias in machine learning models. It demonstrates how a simple Logistic Regression model trained on the [Adult Census Income](https://archive.ics.uci.edu/ml/datasets/adult) dataset can produce discriminatory outcomes and how fairness interventions fix them in real-time.
 
 ---
 
@@ -10,14 +10,16 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 
 | Feature                        | Description                                                                                  |
 | ------------------------------ | -------------------------------------------------------------------------------------------- |
-| **Prediction UI**        | Input applicant data and get income predictions from biased or fair models                   |
-| **Mitigation Toggle**    | Switch between the raw (biased) model and the AIF360 reweighed (fair) model                  |
-| **Regulatory Engine**    | Toggle between EU AI Act, GDPR, or US Fair Lending compliance frameworks                     |
-| **Live Fairness Gauge**  | See the Disparate Impact Ratio improve from ~0.35 → ~0.95 in real-time                      |
-| **Gemini Audit Receipt** | AI-powered compliance report with PDF/JSON export options                                    |
-| **Drift Monitor**        | Real-time chart tracking model fairness (DIR) across inference batches                       |
-| **Adversarial Stress**   | Probe robustness by automatically flipping sensitive attributes (gender-swap test)           |
-| **Causal DAG**           | Pre-computed causal graph showing how sensitive attributes (sex, race) influence predictions |
+| **Prediction UI**              | Input applicant data and get income predictions from biased or fair models                   |
+| **Mitigation Toggle**          | Switch between the raw (biased) model and the AIF360 reweighed (fair) model                  |
+| **Regulatory Engine**          | Toggle between EU AI Act, GDPR, or US Fair Lending compliance frameworks                     |
+| **Live Fairness Gauge**        | See the Disparate Impact Ratio improve from ~0.35 → ~0.95 in real-time                       |
+| **Gemini Audit Receipt**       | AI-powered compliance report with ethical risk classification and PDF/JSON export            |
+| **Explainability Engine**      | Side-by-side feature importance visualization comparing biased vs. fair decision logic         |
+| **Drift Monitor**              | Real-time chart tracking model fairness (DIR) across inference batches                       |
+| **Adversarial Stress Test**    | Probe robustness by automatically flipping sensitive attributes (gender-swap probing)         |
+| **Machine Unlearning**         | On-demand demographic pattern erasure to simulate "Right to be Forgotten" compliance         |
+| **Causal Discovery**           | Interactive causal graph showing how sensitive attributes (sex, race) influence outcomes      |
 
 ---
 
@@ -27,13 +29,15 @@ Sentinel is a full-stack platform that detects, mitigates, and audits bias in ma
 ┌─────────────────────┐         ┌─────────────────────────────────┐
 │   Next.js Frontend  │  HTTP   │       FastAPI Backend           │
 │   (TypeScript +     │ ◄─────► │                                 │
-│    Tailwind CSS)    │         │  POST /api/predict    → Model   │
-│                     │         │  POST /api/fairness   → Metrics │
-│  • Prediction Form  │         │  POST /api/audit      → Gemini  │
-│  • Fairness Gauge   │         │  GET  /api/causal/dag → DAG     │
-│  • Audit Drawer     │         │                                 │
-│  • Mitigation Toggle│         │  Models: Logistic Regression    │
-└─────────────────────┘         │  Fairness: AIF360 Reweighing    │
+│    Tailwind CSS)    │         │  POST /api/predict  → Inference │
+│                     │         │  POST /api/fairness → Metrics   │
+│  • Governance Core  │         │  POST /api/audit    → Gemini    │
+│  • Real-time Gauges │         │  POST /api/explain  → Weights   │
+│  • Causal Discovery │         │  POST /api/stress   → Robustness│
+│  • Audit Trail      │         │  POST /api/unlearn  → Privacy   │
+└─────────────────────┘         │                                 │
+                                │  Models: Logistic Regression    │
+                                │  Fairness: AIF360 Reweighing    │
                                 │  Audit: Gemini 2.5 Flash        │
                                 └─────────────────────────────────┘
 ```
@@ -69,9 +73,6 @@ python generate_causal_dag.py
 # Set up environment variables
 cp .env.example .env
 # Edit .env → add your GEMINI_API_KEY
-
-# Start the API server
-uvicorn app.main:app --reload --port 8000
 ```
 
 ### Frontend
@@ -92,12 +93,16 @@ Open [http://localhost:3000](http://localhost:3000) — the frontend calls the b
 
 ## API Endpoints
 
-| `POST` | `/api/predict`    | Returns prediction from biased or fair model                    |
-| `POST` | `/api/fairness`   | Computes Disparate Impact Ratio & Demographic Parity Difference |
-| `POST` | `/api/audit`      | Generates a Gemini-powered audit receipt                        |
-| `POST` | `/api/stress`     | Runs adversarial stress test (attribute flipping)               |
-| `GET`  | `/api/causal/dag` | Returns the pre-computed causal DAG image URL                   |
-| `GET`  | `/health`         | Health check                                                    |
+| Method | Endpoint | Description |
+| :--- | :--- | :--- |
+| `POST` | `/api/predict` | Returns prediction from biased or fair model |
+| `POST` | `/api/fairness` | Computes DIR and Demographic Parity Difference |
+| `POST` | `/api/audit` | Generates a Gemini-powered audit receipt |
+| `POST` | `/api/explain` | Returns feature weights for model explainability |
+| `POST` | `/api/stress` | Runs adversarial stress test (attribute flipping) |
+| `POST` | `/api/unlearn` | Simulates machine unlearning for demographic patterns |
+| `GET` | `/api/causal/dag` | Returns the pre-computed causal DAG image |
+| `GET` | `/health` | Health check |
 
 ---
 
@@ -109,7 +114,7 @@ A Logistic Regression model trained on raw Adult Census data has a **Disparate I
 
 ### The Solution
 
-[AIF360&#39;s Reweighing](https://aif360.readthedocs.io/) algorithm computes sample weights that compensate for group imbalances:
+[AIF360's Reweighing](https://aif360.readthedocs.io/) algorithm computes sample weights that compensate for group imbalances:
 
 1. Calculate the expected proportion of positive outcomes for each group
 2. Assign higher weights to underrepresented positive cases
@@ -123,15 +128,14 @@ The result: **DIR improves to ~0.95** while maintaining comparable accuracy.
 
 | Layer            | Technology                               |
 | ---------------- | ---------------------------------------- |
-| Frontend         | Next.js 15 · TypeScript · Tailwind CSS |
-| Backend          | FastAPI · Python 3.10+                  |
-| ML Models        | Scikit-Learn (Logistic Regression)       |
-| Bias Mitigation  | AIF360 (Reweighing)                      |
-| Fairness Metrics | Fairlearn                                |
-| Explainability   | Gemini 2.5 Flash                         |
-| Analytics        | Recharts                                 |
-| Causal Analysis  | DoWhy · Matplotlib                      |
-| Serialization    | Joblib                                   |
+| **Frontend**     | Next.js 15 · TypeScript · Tailwind CSS   |
+| **Backend**      | FastAPI · Python 3.10+                   |
+| **ML Models**    | Scikit-Learn (Logistic Regression)       |
+| **Bias Mitigation** | AIF360 (Reweighing)                   |
+| **Fairness Metrics** | Fairlearn                              |
+| **Explainability** | Gemini 2.5 Flash                       |
+| **Analytics**    | Recharts                                 |
+| **Causal Analysis** | DoWhy · Matplotlib                    |
 
 ---
 
@@ -144,13 +148,17 @@ Unbiased-AI/
 ├── backend/
 │   ├── app/
 │   │   ├── main.py                  # FastAPI entry point
-│   │   ├── config.py                # Environment config
-│   │   ├── schemas.py               # Pydantic models
-│   │   ├── routes/                  # API route handlers
-│   │   │   ├── predict.py
-│   │   │   ├── fairness.py
-│   │   │   ├── audit.py
-│   │   │   ├── causal.py
+│   │   ├── routes/                  # API handlers (predict, fairness, audit, etc.)
+│   │   └── services/                # Logic (model, fairness, gemini)
+│   ├── train.py                     # Model training pipeline
+│   ├── generate_causal_dag.py       # Causal DAG generator
+│   └── requirements.txt
+└── frontend/                        # Next.js 15 app
+    ├── src/app/                     # Pages (Dashboard, Audits, Causal)
+    ├── src/components/              # UI components (Gauge, Form, Charts)
+    └── src/lib/api.ts               # Centralized API configuration
+```
+��   ├── causal.py
 │   │   │   └── stress.py
 │   │   └── services/                # Business logic
 │   │       ├── model_service.py

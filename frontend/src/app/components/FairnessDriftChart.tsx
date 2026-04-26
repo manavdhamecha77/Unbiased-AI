@@ -2,8 +2,6 @@
 
 import { useEffect, useState } from "react";
 import {
-  LineChart,
-  Line,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -26,26 +24,24 @@ interface FairnessDriftChartProps {
 }
 
 export default function FairnessDriftChart({ currentDir, isFairModel, historyTrigger }: FairnessDriftChartProps) {
-  const [data, setData] = useState<DriftPoint[]>([]);
-
-  // Initialize with some mock drift data showing degradation
-  useEffect(() => {
-    const initialData: DriftPoint[] = Array.from({ length: 15 }).map((_, i) => ({
+  const [data, setData] = useState<DriftPoint[]>(() => 
+    Array.from({ length: 15 }).map((_, i) => ({
       batch: `Batch ${i + 1}`,
       dir: Number((0.85 - (i * 0.02) + (Math.random() * 0.05)).toFixed(2)),
-    }));
-    setData(initialData);
-  }, []);
+    }))
+  );
 
   // Update chart when a new prediction happens
   useEffect(() => {
     if (currentDir !== null && historyTrigger > 0) {
-      setData((prev) => {
-        const newData = [...prev.slice(1), {
-          batch: `Pred #${historyTrigger}`,
-          dir: Number(currentDir.toFixed(2)),
-        }];
-        return newData;
+      requestAnimationFrame(() => {
+        setData((prev) => {
+          const newData = [...prev.slice(1), {
+            batch: `Pred #${historyTrigger}`,
+            dir: Number(currentDir.toFixed(2)),
+          }];
+          return newData;
+        });
       });
     }
   }, [currentDir, historyTrigger]);

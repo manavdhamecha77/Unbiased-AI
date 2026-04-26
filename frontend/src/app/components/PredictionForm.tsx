@@ -14,6 +14,43 @@ interface PredictionFormProps {
   loading: boolean;
 }
 
+interface InputFieldProps {
+  label: string;
+  field: string;
+  type?: string;
+  options?: string[];
+  sensitive?: boolean;
+  icon?: React.ComponentType<{ size: number; className?: string }>;
+  formData: Record<string, unknown>;
+  onChange: (field: string, value: string | number) => void;
+}
+
+const InputField = ({ label, field, type = "text", options, sensitive, icon: Icon, formData, onChange }: InputFieldProps) => (
+  <div className="space-y-1.5">
+    <label className="text-[9px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
+      {Icon && <Icon size={10} className="text-accent/50" />}
+      {label}
+      {sensitive && <span className="ml-auto text-[7px] bg-danger/10 text-danger px-1 rounded">SENSITIVE</span>}
+    </label>
+    {options ? (
+      <select
+        value={String(formData[field] ?? "")}
+        onChange={(e) => onChange(field, e.target.value)}
+        className="w-full bg-sidebar/50 border border-white/5 rounded-lg px-2 py-2 text-[11px] text-foreground focus:outline-none focus:border-accent/50 transition-all cursor-pointer appearance-none"
+      >
+        {options.map((o) => <option key={o} value={o}>{o}</option>)}
+      </select>
+    ) : (
+      <input
+        type={type}
+        value={String(formData[field] ?? "")}
+        onChange={(e) => onChange(field, type === "number" ? parseInt(e.target.value) || 0 : e.target.value)}
+        className="w-full bg-sidebar/50 border border-white/5 rounded-lg px-2 py-2 text-[11px] text-foreground focus:outline-none focus:border-accent/50 transition-all"
+      />
+    )}
+  </div>
+);
+
 export default function PredictionForm({ onSubmit, loading }: PredictionFormProps) {
   const [formData, setFormData] = useState({
     age: 35,
@@ -40,51 +77,25 @@ export default function PredictionForm({ onSubmit, loading }: PredictionFormProp
     onSubmit(formData);
   };
 
-  const InputField = ({ label, field, type = "text", options, sensitive, icon: Icon }: any) => (
-    <div className="space-y-1.5">
-      <label className="text-[9px] font-bold text-muted uppercase tracking-wider flex items-center gap-1.5">
-        {Icon && <Icon size={10} className="text-accent/50" />}
-        {label}
-        {sensitive && <span className="ml-auto text-[7px] bg-danger/10 text-danger px-1 rounded">SENSITIVE</span>}
-      </label>
-      {options ? (
-        <select
-          value={formData[field as keyof typeof formData]}
-          onChange={(e) => handleChange(field, e.target.value)}
-          className="w-full bg-sidebar/50 border border-white/5 rounded-lg px-2 py-2 text-[11px] text-foreground focus:outline-none focus:border-accent/50 transition-all cursor-pointer appearance-none"
-        >
-          {options.map((o: any) => <option key={o} value={o}>{o}</option>)}
-        </select>
-      ) : (
-        <input
-          type={type}
-          value={formData[field as keyof typeof formData]}
-          onChange={(e) => handleChange(field, type === "number" ? parseInt(e.target.value) || 0 : e.target.value)}
-          className="w-full bg-sidebar/50 border border-white/5 rounded-lg px-2 py-2 text-[11px] text-foreground focus:outline-none focus:border-accent/50 transition-all"
-        />
-      )}
-    </div>
-  );
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="grid grid-cols-2 gap-4">
-        <InputField label="Age" field="age" type="number" icon={User} />
-        <InputField label="Hours/Wk" field="hours_per_week" type="number" icon={Clock} />
+        <InputField label="Age" field="age" type="number" icon={User} formData={formData} onChange={handleChange} />
+        <InputField label="Hours/Wk" field="hours_per_week" type="number" icon={Clock} formData={formData} onChange={handleChange} />
         
         <div className="col-span-2 grid grid-cols-2 gap-4 p-3 rounded-xl bg-white/5 border border-white/5">
-           <InputField label="Race" field="race" options={RACE_OPTIONS} sensitive />
-           <InputField label="Sex" field="sex" options={SEX_OPTIONS} sensitive />
+           <InputField label="Race" field="race" options={RACE_OPTIONS} sensitive formData={formData} onChange={handleChange} />
+           <InputField label="Sex" field="sex" options={SEX_OPTIONS} sensitive formData={formData} onChange={handleChange} />
         </div>
 
-        <InputField label="Education" field="education" options={EDUCATION_OPTIONS} icon={GraduationCap} />
-        <InputField label="Edu Rank" field="education_num" type="number" />
+        <InputField label="Education" field="education" options={EDUCATION_OPTIONS} icon={GraduationCap} formData={formData} onChange={handleChange} />
+        <InputField label="Edu Rank" field="education_num" type="number" formData={formData} onChange={handleChange} />
         
-        <InputField label="Occupation" field="occupation" options={OCCUPATION_OPTIONS} icon={Briefcase} />
-        <InputField label="Workclass" field="workclass" options={WORKCLASS_OPTIONS} />
+        <InputField label="Occupation" field="occupation" options={OCCUPATION_OPTIONS} icon={Briefcase} formData={formData} onChange={handleChange} />
+        <InputField label="Workclass" field="workclass" options={WORKCLASS_OPTIONS} formData={formData} onChange={handleChange} />
         
-        <InputField label="Cap Gain" field="capital_gain" type="number" icon={DollarSign} />
-        <InputField label="Cap Loss" field="capital_loss" type="number" />
+        <InputField label="Cap Gain" field="capital_gain" type="number" icon={DollarSign} formData={formData} onChange={handleChange} />
+        <InputField label="Cap Loss" field="capital_loss" type="number" formData={formData} onChange={handleChange} />
       </div>
 
       <button

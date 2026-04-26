@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { AlertTriangle, CheckCircle, ShieldAlert } from "lucide-react";
+import { API_BASE } from "../../lib/api";
 
 interface StressTestPanelProps {
   lastFeatures: Record<string, unknown> | null;
@@ -22,7 +23,7 @@ export default function StressTestPanel({ lastFeatures, modelUsed }: StressTestP
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/stress`, {
+      const res = await fetch(`${API_BASE}/api/stress`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...lastFeatures, model_type: modelUsed }),

@@ -4,17 +4,13 @@ import { useState } from "react";
 import PageHeader from "../components/PageHeader";
 import ReactMarkdown from "react-markdown";
 import { 
-  ShieldCheck, 
   AlertTriangle, 
   CheckCircle2, 
-  FileText, 
   Download, 
-  Share2, 
-  ExternalLink,
-  Search
+  Share2
 } from "lucide-react";
 
-const API_BASE = "http://localhost:8000";
+import { API_BASE } from "../../lib/api";
 
 export default function AuditsPage() {
   const [selectedAudit, setSelectedAudit] = useState<string | null>("AUD-2024-001");
